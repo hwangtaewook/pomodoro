@@ -9,14 +9,26 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int totalSeconds = 1500;
+  static const twentyFiveMinute = 1500;
+  int totalSeconds = twentyFiveMinute;
   bool isRunning = false;
+  bool isReset = false;
+  int totalPomodoros = 0;
   late Timer timer;
 
   void onTick(Timer timer) {
-    setState(() {
-      totalSeconds -= 1;
-    });
+    if (totalSeconds == 0) {
+      setState(() {
+        totalSeconds = twentyFiveMinute;
+        totalPomodoros += 1;
+        isRunning = false;
+      });
+      timer.cancel();
+    } else {
+      setState(() {
+        totalSeconds -= 1;
+      });
+    }
   }
 
   void onStratPressed() {
@@ -26,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
     setState(() {
       isRunning = true;
+      isReset = false;
     });
   }
 
@@ -36,10 +49,23 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void onResetPressd() {
+    setState(() {
+      totalSeconds = twentyFiveMinute;
+      timer.cancel();
+      isReset = true;
+    });
+  }
+
+  String format(int seconds) {
+    var duration = Duration(seconds: seconds);
+    return duration.toString().substring(2, 7);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: Column(
         children: [
           Flexible(
@@ -47,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Container(
               alignment: Alignment.bottomCenter,
               child: Text(
-                '$totalSeconds',
+                format(totalSeconds),
                 style: TextStyle(
                   color: Theme.of(context).cardColor,
                   fontSize: 89,
@@ -58,15 +84,36 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           Flexible(
             flex: 3,
-            child: Center(
-              child: IconButton(
-                iconSize: 150,
-                color: Theme.of(context).cardColor,
-                onPressed: isRunning ? onPausePressed : onStratPressed,
-                icon: Icon(isRunning
-                    ? Icons.pause_circle_outline
-                    : Icons.play_circle_outline),
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(
+                  child: IconButton(
+                    iconSize: 150,
+                    color: Theme.of(context).cardColor,
+                    onPressed: isReset
+                        ? onStratPressed
+                        : isRunning
+                            ? onPausePressed
+                            : onStratPressed,
+                    icon: Icon(isReset
+                        ? Icons.play_circle_outline
+                        : isRunning
+                            ? Icons.pause_circle_outline
+                            : Icons.play_circle_outline),
+                  ),
+                ),
+                Center(
+                  child: IconButton(
+                    iconSize: 50,
+                    color: Theme.of(context).cardColor,
+                    onPressed: onResetPressd,
+                    icon: const Icon(
+                      Icons.replay_circle_filled_outlined,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Flexible(
@@ -77,6 +124,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(30),
+                        topLeft: Radius.circular(50),
+                      ),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -86,15 +137,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
-                            color: Theme.of(context).textTheme.headline1!.color,
+                            color:
+                                Theme.of(context).textTheme.displayLarge!.color,
                           ),
                         ),
                         Text(
-                          '0',
+                          '$totalPomodoros',
                           style: TextStyle(
                             fontSize: 60,
                             fontWeight: FontWeight.w600,
-                            color: Theme.of(context).textTheme.headline1!.color,
+                            color:
+                                Theme.of(context).textTheme.displayLarge!.color,
                           ),
                         ),
                       ],

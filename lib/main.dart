@@ -19,9 +19,10 @@ class _MyAppState extends State<App> {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        backgroundColor: const Color(0xFFE7626C),
+        colorScheme:
+            ColorScheme.fromSwatch(backgroundColor: const Color(0xFFE7626C)),
         textTheme: const TextTheme(
-          headline1: TextStyle(
+          displayLarge: TextStyle(
             color: Color(0xFF232B55),
           ),
         ),
